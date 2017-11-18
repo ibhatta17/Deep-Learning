@@ -146,7 +146,7 @@ def train_classifier(training_set, validation_set):
 			validation_steps = 2000)
 	return classifier
 	
-def make_prediction(classifier, image):    
+def make_prediction(classifier, training_set, image):    
     test_set = image.load_img('dataset/test_set/' + image, 
                              target_size = (128, 128))
     # since the input_shape of the image was 128X128 while we train our model, lets force the image to be of
@@ -169,7 +169,7 @@ def make_prediction(classifier, image):
 		
 training_set, validation_set =  image_preprocessing()
 classifier = train_classifier(training_set, validation_set)
-pred = make_prediction(classifier, 'image1.jpg')
+pred = make_prediction(classifier, training_set, 'image1.jpg')
 print('The image is predicted as: ', pred)
-pred = make_prediction(classifier, 'image2.jpg')
+pred = make_prediction(classifier, training_set, 'image2.jpg')
 print('The image is predicted as: ', pred)
