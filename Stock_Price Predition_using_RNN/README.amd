@@ -1,0 +1,1 @@
+Stock price is predicted using the Recurrent Neural Network. Here the stock information from the last 5 years is used and the trainned RNN model is used to predict the stock price for future 1 month. The algorithm is used only to predict the Open stock price.
