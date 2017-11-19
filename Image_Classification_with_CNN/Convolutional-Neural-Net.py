@@ -121,7 +121,6 @@ def build_tunned_classifier():
     since the o/p is either dog or cat. i.e binary o/p, output_dim = 1
     For multi-class classification problem, we need to use 'softmax' activation function instead of 'sigmoid' 
     '''
-	classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
     
     return classifier
 
