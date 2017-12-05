@@ -1,8 +1,5 @@
-# # Classification Exercise
-
-# We'll be working with some California Census Data, we'll be trying to use various features of an individual to predict what class of income they belogn in (>50k or <=50k). 
-# 
-# Here is some information about the data:
+The objective of thus project is to predict what class of income they belogn in (>50k or <=50k) using some California Census Data.
+Here is some information about the data:
 
 # <table>
 # <thead>
