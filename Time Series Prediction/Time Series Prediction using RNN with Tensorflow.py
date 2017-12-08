@@ -1,18 +1,13 @@
-
-# coding: utf-8
-
 # **  Predicting the milk production using historical data**
-# 
 # ** Source: https://datamarket.com/data/set/22ox/monthly-milk-production-pounds-per-cow-jan-62-dec-75#!ds=22ox&display=line **
-# 
 # **Monthly milk production: pounds per cow Jan '62 - Dec '75 **
-
-# In[1]:
 
 # Importing the libraries
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+import tensorflow as tf
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -20,20 +15,11 @@ warnings.filterwarnings('ignore')
 data = pd.read_csv('monthly-milk-production.csv', index_col = 'Month')
 data.index = pd.to_datetime(data.index) # convering the date to 'DATETEIEM' format
 
-
-# In[2]:
-
 # Visualizing the time series data
 data.plot()
 plt.show()
 
-
-# In[3]:
-
-len(data)
-
-
-# In[4]:
+#len(data)
 
 # Train Test Split
 # Instead of a random train-test split, we want to use the sequential data for both test and train set.
@@ -41,17 +27,10 @@ train_set = data.head(156)
 # will predict for a year
 test_set = data.tail(12)
 
-
-# In[5]:
-
 # Scaling the data
-from sklearn.preprocessing import MinMaxScaler
 sc = MinMaxScaler()
 train_data = sc.fit_transform(train_set)
 test_data = sc.transform(test_set)
-
-
-# In[6]:
 
 # Batch function to feed a batch of data at a time
 
@@ -75,12 +54,8 @@ def next_batch(training_data, batch_size, steps):
     # First series with actual batch and 2nd series with time shifted batch
     return y_batch[:, :-1].reshape(-1, steps, 1), y_batch[:, 1:].reshape(-1, steps, 1)
 
+# ---------------------- RNN Model ----------------------
 
-# In[7]:
-
-# RNN Model
-import tensorflow as tf
- 
 num_inputs = 1 # Just one feature, the time series
 num_time_steps = 12 # Num of steps in each batch
 num_neurons = 100 # 100 neuron
@@ -104,9 +79,6 @@ loss = tf.reduce_mean(tf.square(outputs - y)) # Mean squared error Loss function
 optimizer = tf.train.AdamOptimizer(learning_rate = 0.001) # Adam optimizer to optimize gradient descent
 model = optimizer.minimize(loss) # training the model to minimize the loss function
 
-
-# In[8]:
-
 # Executing the tensor graph
 init = tf.global_variables_initializer()
 saver = tf.train.Saver() # to save the trained model
@@ -127,11 +99,7 @@ with tf.Session(config = tf.ConfigProto(gpu_options = gpu_option)) as sess:
             
     saver.save(sess, 'Models/time_series') # saving the trained model
 
-
-# In[9]:
-
-with tf.Session() as sess:
-    
+with tf.Session() as sess:    
     # Restoring the saved trained model
     saver.restore(sess, "Models/time_series")
 
@@ -145,16 +113,10 @@ with tf.Session() as sess:
         y_pred = sess.run(outputs, feed_dict={x: x_batch})
         train_seed.append(y_pred[0, -1, 0])
 
-
-# In[10]:
-
 # the model was built with scaled input data. now, we need to inverse the scaling to get actual values
 result = sc.inverse_transform(np.array(train_seed[12:])).reshape(12, 1)
 # we append the predicted data on the 'train_seed'. The first 12 items are the actual train values and 
 # the remaining are the predicted ones. Hence sclicing thru [12:]  to get only the preducted values
-
-
-# In[11]:
 
 # adding the result to test dataframe to compare
 test_set['Predicted'] = result
@@ -162,4 +124,3 @@ test_set['Predicted'] = result
 # Plotting the actual vs predicted values
 test_set.plot()
 plt.show()
-
