@@ -1,2 +1,0 @@
-*** Reducing a 30 dimensional data set for classification into a 2-dimensional dataset! 
-# Then using the color classes to see if we still kept the same level of class separation in the dimensionality reduction ***
