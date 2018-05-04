@@ -1,0 +1,2 @@
+model_checkpoint_path: "ripple_prediction_model"
+all_model_checkpoint_paths: "ripple_prediction_model"
