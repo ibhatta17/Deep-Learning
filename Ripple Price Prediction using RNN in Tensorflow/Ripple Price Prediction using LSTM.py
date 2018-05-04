@@ -1,5 +1,5 @@
 ###################################################################
-#------------------- Part 1. Data Preprocessing -------------------
+#------------------- Part 1. Data Extraction -------------------
 ###################################################################
 
 # Importing the required libraries
@@ -37,11 +37,15 @@ plt.legend(loc='best')
 plt.show()
 
 
-# Feature scaling
+###################################################################
+#------------------- Part 2. Feature Scaling -------------------
+###################################################################
 sc = MinMaxScaler()
 scaled_data = sc.fit_transform(df)
 
-
+###################################################################
+#------------------- Part 3. Data Preprocessing -------------------
+###################################################################
 '''
 --------------- Creating the data structure required to feed into RNN --------------- 
 We need to identify the best number of timesteps(how far back we are looking into the RNN to update current timestamp weights)
@@ -63,16 +67,15 @@ data = np.array(data);
 valid_set_size = int(np.round(0.1 * data.shape[0])) 
 test_set_size = valid_set_size
 train_set_size = data.shape[0] - 2*valid_set_size
-
+# Creating Train data
 x_train = data[:train_set_size, :-1, :]
 y_train = data[:train_set_size, -1, :]
-
+# Creating Validation data
 x_valid = data[train_set_size:train_set_size+valid_set_size,:-1,:]
 y_valid = data[train_set_size:train_set_size+valid_set_size,-1,:]
-
+# Creating Test data
 x_test = data[train_set_size+valid_set_size:,:-1,:]
 y_test = data[train_set_size+valid_set_size:,-1,:]
-
 
 index_in_epoch = 0;
 perm_array  = np.arange(x_train.shape[0])
@@ -92,7 +95,9 @@ def next_batch(batch_size):
     end = index_in_epoch
     return x_train[perm_array[start:end]], y_train[perm_array[start:end]]
 
-
+###################################################################
+#------------------- Part 4. Developing LSTM Model -------------------
+###################################################################
 # 4 features
 num_inputs = 4
 # Num of steps in each batch
@@ -116,8 +121,6 @@ n_layers = 2
 X = tf.placeholder(tf.float32, [None, num_time_steps, num_inputs])
 y = tf.placeholder(tf.float32, [None, num_outputs])
 
-
-
 # use Basic RNN Cell
 cell = [tf.contrib.rnn.BasicRNNCell(num_units=num_neurons, activation=tf.nn.elu)
         for layer in range(n_layers)]
@@ -133,12 +136,10 @@ stacked_outputs = tf.layers.dense(stacked_rnn_outputs, num_outputs)
 final_outputs = tf.reshape(stacked_outputs, [-1, num_time_steps, num_outputs])
 final_outputs = final_outputs[:,num_time_steps-1,:] # keep only last output of sequence
 
-
 # Create a Mean Squared Error Loss Function and use it to minimize an AdamOptimizer.
 loss = tf.reduce_mean(tf.square(final_outputs - y)) # MSE
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 train = optimizer.minimize(loss)
-
 
 # Initializing the global variable
 init = tf.global_variables_initializer()
@@ -164,20 +165,17 @@ with tf.Session() as sess:
     # Saving Model for future use
     saver.save(sess, './model/ripple_prediction_model')
 
-
-# In[ ]:
-
+###################################################################
+#------------------- Part 5. Evaluating the Model -------------------
+###################################################################
 with tf.Session() as sess:    
     # Using Saver instance to restore saved rnn 
     saver.restore(sess, './model/ripple_prediction_model')
 
     y_pred = sess.run(final_outputs, feed_dict={X: x_test})
 
-
-
 y_test = sc.inverse_transform(y_test)
 y_pred = sc.inverse_transform(y_pred)
-
 
 # Comparing the actual versus predicted price
 latest_date = max(pd.to_datetime(html_data['Date']))
@@ -203,9 +201,5 @@ plt.show()
 
 # Evaluating the model
 rmse = sqrt(mean_squared_error(y_pred[:,0], y_test[:,0]))
-normalized_rmse = rmse/(max(y_pred[:,0]) - min(y_test[:,0]))
+normalized_rmse = rmse/(max(y_pred[:,0]) - min(y_pred[:,0]))
 print('Normalized RMSE: ', normalized_rmse)
-
-
-
-

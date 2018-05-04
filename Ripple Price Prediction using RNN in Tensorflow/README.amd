@@ -1,3 +1,3 @@
 The idea here is to predict the price of Ripple for the following day using all historical data. The Recurrent Neural Net model is trained using historical data. Price from last 30 days are used to make a prediction for the next day. 
 
-Since the this algorithm predicts the price for pnly for one day in future, it can be used only for daily trading.
+Since the this algorithm predicts the price only for one day in future, the algorithm is good for daily trading only.
